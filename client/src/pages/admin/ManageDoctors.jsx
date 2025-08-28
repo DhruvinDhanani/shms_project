@@ -1,109 +1,151 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const ManageDoctors = () => {
   const [doctors, setDoctors] = useState([]);
-  const [newDoctor, setNewDoctor] = useState({ name: "", specialization: "", email: "" });
-  const [editingId, setEditingId] = useState(null);
+  const [newDoctor, setNewDoctor] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    qualification: "",
+  });
 
-  // Fetch doctors
+  const token = sessionStorage.getItem("token"); // sessionStorage token
+
+  // Fetch all doctors
+  const fetchDoctors = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/admin/doctors", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDoctors(res.data);
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message);
+    }
+  };
+
   useEffect(() => {
     fetchDoctors();
   }, []);
 
-  const fetchDoctors = async () => {
-    const res = await axios.get("http://localhost:5000/api/admin/doctors");
-    setDoctors(res.data);
+  // Add Doctor
+  const handleAddDoctor = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/admin/doctors", newDoctor, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNewDoctor({ name: "", email: "", phone: "", qualification: "" });
+      fetchDoctors();
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message);
+    }
   };
 
-  const handleAdd = async () => {
-    if (!newDoctor.name || !newDoctor.specialization || !newDoctor.email) return;
-    await axios.post("http://localhost:5000/api/admin/doctors", newDoctor);
-    setNewDoctor({ name: "", specialization: "", email: "" });
-    fetchDoctors();
+  // Delete Doctor
+  const handleDeleteDoctor = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/admin/doctors/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchDoctors();
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message);
+    }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
-    await axios.delete(`http://localhost:5000/api/admin/doctors/${id}`);
-    fetchDoctors();
-  };
-
-  const handleEdit = (doc) => {
-    setNewDoctor(doc);
-    setEditingId(doc._id);
-  };
-
-  const handleUpdate = async () => {
-    await axios.put(`http://localhost:5000/api/admin/doctors/${editingId}`, newDoctor);
-    setNewDoctor({ name: "", specialization: "", email: "" });
-    setEditingId(null);
-    fetchDoctors();
+  // Update Doctor phone (editable)
+  const handleUpdateDoctor = async (id, phone) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/admin/doctors/${id}`,
+        { phone },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchDoctors();
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message);
+    }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Manage Doctors</h2>
+    <div className="p-6">
+      <h1 className="text-2xl mb-4">Manage Doctors</h1>
 
-      {/* Add/Edit Doctor Form */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6 space-y-4">
-        <input type="text" placeholder="Name"
+      {/* Add Doctor Form */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Name"
           value={newDoctor.name}
           onChange={(e) => setNewDoctor({ ...newDoctor, name: e.target.value })}
-          className="border p-2 w-full rounded" />
-        <input type="text" placeholder="Specialization"
-          value={newDoctor.specialization}
-          onChange={(e) => setNewDoctor({ ...newDoctor, specialization: e.target.value })}
-          className="border p-2 w-full rounded" />
-        <input type="email" placeholder="Email"
+          className="border p-1 mr-2"
+        />
+        <input
+          type="email"
+          placeholder="Email"
           value={newDoctor.email}
           onChange={(e) => setNewDoctor({ ...newDoctor, email: e.target.value })}
-          className="border p-2 w-full rounded" />
-
-        {editingId ? (
-          <button onClick={handleUpdate} className="bg-yellow-500 text-white px-4 py-2 rounded">
-            Update Doctor
-          </button>
-        ) : (
-          <button onClick={handleAdd} className="bg-blue-500 text-white px-4 py-2 rounded">
-            Add Doctor
-          </button>
-        )}
+          className="border p-1 mr-2"
+        />
+        <input
+          type="text"
+          placeholder="Phone"
+          value={newDoctor.phone}
+          onChange={(e) => setNewDoctor({ ...newDoctor, phone: e.target.value })}
+          className="border p-1 mr-2"
+        />
+        <input
+          type="text"
+          placeholder="Qualification"
+          value={newDoctor.qualification}
+          onChange={(e) => setNewDoctor({ ...newDoctor, qualification: e.target.value })}
+          className="border p-1 mr-2"
+        />
+        <button className="bg-green-500 text-white px-3 py-1" onClick={handleAddDoctor}>
+          Add Doctor
+        </button>
       </div>
 
       {/* Doctors Table */}
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Specialization</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Actions</th>
+      <table className="border w-full">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border px-2 py-1">Name</th>
+            <th className="border px-2 py-1">Email</th>
+            <th className="border px-2 py-1">Phone</th>
+            <th className="border px-2 py-1">Qualification</th>
+            <th className="border px-2 py-1">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {doctors.map((doc) => (
+            <tr key={doc._id}>
+              <td className="border px-2 py-1">{doc.name}</td>
+              <td className="border px-2 py-1">{doc.email}</td>
+              <td className="border px-2 py-1">
+                <input
+                  type="text"
+                  defaultValue={doc.phone}
+                  onBlur={(e) => handleUpdateDoctor(doc._id, e.target.value)}
+                  className="border p-1 w-full"
+                />
+              </td>
+              <td className="border px-2 py-1">{doc.qualification}</td>
+              <td className="border px-2 py-1">
+                <button
+                  className="bg-red-500 text-white px-2 py-1"
+                  onClick={() => handleDeleteDoctor(doc._id)}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {doctors.map((doctor) => (
-              <tr key={doctor._id} className="border-t">
-                <td className="px-4 py-2">{doctor.name}</td>
-                <td className="px-4 py-2">{doctor.specialization}</td>
-                <td className="px-4 py-2">{doctor.email}</td>
-                <td className="px-4 py-2 space-x-2">
-                  <button onClick={() => handleEdit(doctor)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
-                  <button onClick={() => handleDelete(doctor._id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
-                </td>
-              </tr>
-            ))}
-            {doctors.length === 0 && (
-              <tr><td colSpan="4" className="text-center text-gray-500 py-4">No doctors found.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 export default ManageDoctors;
+  

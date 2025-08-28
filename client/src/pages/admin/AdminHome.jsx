@@ -1,46 +1,116 @@
 import React, { useEffect, useState } from "react";
-import API from "../../utils/axios";
+import axios from "axios";
 
 const AdminHome = () => {
-  const [stats, setStats] = useState({ doctors: 0, nurses: 0, patients: 0 });
+  const [doctors, setDoctors] = useState([]);
+  const [nurses, setNurses] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const token = sessionStorage.getItem("token");
+
+  // Fetch all users by role
+  const fetchData = async () => {
+    try {
+      const doctorRes = await axios.get("http://localhost:5000/api/admin/doctors", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDoctors(doctorRes.data);
+
+      const nurseRes = await axios.get("http://localhost:5000/api/admin/nurses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNurses(nurseRes.data);
+
+      const patientRes = await axios.get("http://localhost:5000/api/admin/patients", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPatients(patientRes.data);
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const doctors = await API.get("/api/doctors");
-        const nurses = await API.get("/api/nurses");
-        const patients = await API.get("/api/patients");
-
-        setStats({
-          doctors: doctors.data.length,
-          nurses: nurses.data.length,
-          patients: patients.data.length,
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchStats();
+    fetchData();
   }, []);
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-      <div className="grid grid-cols-3 gap-6">
-        <div className="bg-blue-500 text-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold">Doctors</h2>
-          <p className="text-3xl">{stats.doctors}</p>
-        </div>
-        <div className="bg-green-500 text-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold">Nurses</h2>
-          <p className="text-3xl">{stats.nurses}</p>
-        </div>
-        <div className="bg-purple-500 text-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold">Patients</h2>
-          <p className="text-3xl">{stats.patients}</p>
-        </div>
-      </div>
+      <h1 className="text-3xl mb-6">Admin Dashboard</h1>
+
+      {/* Doctors Table */}
+      <section className="mb-6">
+        <h2 className="text-2xl mb-2">Doctors</h2>
+        <table className="border w-full mb-4">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-2 py-1">Name</th>
+              <th className="border px-2 py-1">Email</th>
+              <th className="border px-2 py-1">Phone</th>
+              <th className="border px-2 py-1">Qualification</th>
+            </tr>
+          </thead>
+          <tbody>
+            {doctors.map((doc) => (
+              <tr key={doc._id}>
+                <td className="border px-2 py-1">{doc.name}</td>
+                <td className="border px-2 py-1">{doc.email}</td>
+                <td className="border px-2 py-1">{doc.phone}</td>
+                <td className="border px-2 py-1">{doc.qualification}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Nurses Table */}
+      <section className="mb-6">
+        <h2 className="text-2xl mb-2">Nurses</h2>
+        <table className="border w-full mb-4">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-2 py-1">Name</th>
+              <th className="border px-2 py-1">Email</th>
+              <th className="border px-2 py-1">Phone</th>
+              <th className="border px-2 py-1">Qualification</th>
+            </tr>
+          </thead>
+          <tbody>
+            {nurses.map((nurse) => (
+              <tr key={nurse._id}>
+                <td className="border px-2 py-1">{nurse.name}</td>
+                <td className="border px-2 py-1">{nurse.email}</td>
+                <td className="border px-2 py-1">{nurse.phone}</td>
+                <td className="border px-2 py-1">{nurse.qualification}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Patients Table */}
+      <section>
+        <h2 className="text-2xl mb-2">Patients</h2>
+        <table className="border w-full mb-4">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-2 py-1">Name</th>
+              <th className="border px-2 py-1">Email</th>
+              <th className="border px-2 py-1">Phone</th>
+              <th className="border px-2 py-1">Disease</th>
+            </tr>
+          </thead>
+          <tbody>
+            {patients.map((patient) => (
+              <tr key={patient._id}>
+                <td className="border px-2 py-1">{patient.name}</td>
+                <td className="border px-2 py-1">{patient.email}</td>
+                <td className="border px-2 py-1">{patient.phone}</td>
+                <td className="border px-2 py-1">{patient.disease}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 };

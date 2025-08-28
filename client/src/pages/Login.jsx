@@ -1,59 +1,72 @@
-// src/pages/Login.jsx
-import { useState } from "react";
+// pages/Login.jsx
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
+import { AuthContext } from "../context/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [, setUser] = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-      email,
-      password,
-    });
+      const res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // ✅ Token + User data backend thi male che
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      const data = await res.json();
 
-      // Role check karo
-      if (res.data.user.role === "admin") {
-        window.location.href = "/admin/dashboard";
-      } else if (res.data.user.role === "doctor") {
-        window.location.href = "/doctor/dashboard";
-      } else if (res.data.user.role === "nurse") {
-        window.location.href = "/nurse/dashboard";
-      } else {
-        window.location.href = "/patient/dashboard";
-      }
+      if (!res.ok) throw new Error(data.message || "Login failed");
+
+      // Save user in sessionStorage via AuthContext
+      setUser({
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        token: data.token,
+      });
+
+      // Redirect based on role
+      if (data.role === "admin") navigate("/admin-dashboard");
+      else if (data.role === "doctor") navigate("/doctor-dashboard");
+      else if (data.role === "nurse") navigate("/nurse-dashboard");
+      else navigate("/patient-dashboard");
+
     } catch (err) {
-      alert("Login failed: " + err.response.data.message);
+      setError(err.message);
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <form className="p-6 bg-gray-100 rounded" onSubmit={handleLogin}>
-        <h2 className="text-xl mb-4">Login</h2>
+    <div className="flex justify-center items-center h-screen">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80">
+        <h2 className="text-xl font-bold mb-4">Login</h2>
+        {error && <p className="text-red-500">{error}</p>}
         <input
-          className="border p-2 w-full mb-2"
+          type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 mb-3 border rounded"
+          required
         />
         <input
-          className="border p-2 w-full mb-2"
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 mb-3 border rounded"
+          required
         />
-        <button className="bg-blue-500 text-white p-2 w-full" type="submit">
+        <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
           Login
         </button>
       </form>

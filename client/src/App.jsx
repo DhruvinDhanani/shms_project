@@ -1,73 +1,85 @@
-// src/App.jsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import DashboardLayout from "./components/DashboardLayout";
+// App.jsx or Routes.jsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
-
-// Admin components
+import PrivateRoute from "./components/PrivateRoute";
+import Login from "./pages/Login";
+import DoctorHome from "./pages/doctor/DoctorHome";
+import NurseHome from "./pages/nurse/NurseHome";
+import PatientHome from "./pages/patient/PatientHome";
 import AdminHome from "./pages/admin/AdminHome";
-import AllPatients from "./pages/admin/AllPatients";
 import ManageDoctors from "./pages/admin/ManageDoctors";
 import ManageNurses from "./pages/admin/ManageNurses";
+import AllPatients from "./pages/admin/AllPatients";
 
-// Doctor components...
-import DoctorHome from "./pages/doctor/DoctorHome";
-import MyPatients from "./pages/doctor/MyPatients";
-
-// Nurse components...
-import NurseHome from "./pages/nurse/NurseHome";
-import RoomStatus from "./pages/nurse/RoomStatus";
-
-// Patient components...
-import PatientHome from "./pages/patient/PatientHome";
-import Appointments from "./pages/patient/Appointments";
-
-function App(){
+function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
+        {/* Public */}
+        <Route path="/" element={<Login />} />
 
-        <Route path="/admin/*" element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<AdminHome/>}/>
-          <Route path="allpatients" element={<AllPatients/>}/>
-          <Route path="manage-doctors" element={<ManageDoctors/>}/>
-          <Route path="manage-nurses" element={<ManageNurses/>}/>
-        </Route>
+        {/* Admin routes */}
+        <Route 
+          path="/admin-dashboard" 
+          element={
+            <ProtectedRoute role="admin">
+              <AdminHome />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/manage-doctors" 
+          element={
+            <ProtectedRoute role="admin">
+              <ManageDoctors />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/manage-nurses" 
+          element={
+            <ProtectedRoute role="admin">
+              <ManageNurses />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/manage-patients" 
+          element={
+            <ProtectedRoute role="admin">
+              <AllPatients />
+            </ProtectedRoute>
+          } 
+        />
+        <Route
+          path="/doctor-dashboard"
+          element={
+            <PrivateRoute allowedRoles={["doctor"]}>
+              <DoctorHome />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/doctor/*" element={
-          <ProtectedRoute allowedRoles={['doctor']}>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<DoctorHome/>}/>
-          <Route path="mypatients" element={<MyPatients/>}/>
-        </Route>
+        <Route
+          path="/nurse-dashboard"
+          element={
+            <PrivateRoute allowedRoles={["nurse"]}>
+              <NurseHome />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/nurse/*" element={
-          <ProtectedRoute allowedRoles={['nurse']}>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<NurseHome/>}/>
-          <Route path="room-status" element={<RoomStatus/>}/>
-        </Route>
-
-        <Route path="/patient/*" element={
-          <ProtectedRoute allowedRoles={['patient']}>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<PatientHome/>}/>
-          <Route path="appointments" element={<Appointments/>}/>
-        </Route>
+        <Route
+          path="/patient-dashboard"
+          element={
+            <PrivateRoute allowedRoles={["patient"]}>
+              <PatientHome />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
+
 export default App;
