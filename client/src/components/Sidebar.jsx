@@ -2,7 +2,7 @@ import { useContext,useEffect,useState } from 'react'
 import { AuthContext } from '../context/Auth'
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { navLinks } from '../utils/navLinks';
+import { navLinks } from '../utils/navlinks';
 
 const Sidebar = () => {
 
