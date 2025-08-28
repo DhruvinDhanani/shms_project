@@ -10,10 +10,13 @@ const ManageDoctors = () => {
     qualification: "",
   });
 
-  const token = sessionStorage.getItem("token"); // sessionStorage token
+  // Get token from sessionStorage
+  const token = sessionStorage.getItem("token");
 
   // Fetch all doctors
   const fetchDoctors = async () => {
+    if (!token) return;
+
     try {
       const res = await axios.get("http://localhost:5000/api/admin/doctors", {
         headers: { Authorization: `Bearer ${token}` },
@@ -26,10 +29,12 @@ const ManageDoctors = () => {
 
   useEffect(() => {
     fetchDoctors();
-  }, []);
+  }, [token]);
 
   // Add Doctor
   const handleAddDoctor = async () => {
+    if (!token) return;
+
     try {
       await axios.post("http://localhost:5000/api/admin/doctors", newDoctor, {
         headers: { Authorization: `Bearer ${token}` },
@@ -43,6 +48,8 @@ const ManageDoctors = () => {
 
   // Delete Doctor
   const handleDeleteDoctor = async (id) => {
+    if (!token) return;
+
     try {
       await axios.delete(`http://localhost:5000/api/admin/doctors/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -55,6 +62,8 @@ const ManageDoctors = () => {
 
   // Update Doctor phone (editable)
   const handleUpdateDoctor = async (id, phone) => {
+    if (!token) return;
+
     try {
       await axios.put(
         `http://localhost:5000/api/admin/doctors/${id}`,
@@ -101,7 +110,10 @@ const ManageDoctors = () => {
           onChange={(e) => setNewDoctor({ ...newDoctor, qualification: e.target.value })}
           className="border p-1 mr-2"
         />
-        <button className="bg-green-500 text-white px-3 py-1" onClick={handleAddDoctor}>
+        <button
+          className="bg-green-500 text-white px-3 py-1"
+          onClick={handleAddDoctor}
+        >
           Add Doctor
         </button>
       </div>
@@ -148,4 +160,3 @@ const ManageDoctors = () => {
 };
 
 export default ManageDoctors;
-  

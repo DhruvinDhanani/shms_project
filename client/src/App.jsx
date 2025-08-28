@@ -10,6 +10,7 @@ import AdminHome from "./pages/admin/AdminHome";
 import ManageDoctors from "./pages/admin/ManageDoctors";
 import ManageNurses from "./pages/admin/ManageNurses";
 import AllPatients from "./pages/admin/AllPatients";
+import MyPatients from "./pages/doctor/MyPatients";
 
 function App() {
   return (
@@ -22,33 +23,33 @@ function App() {
         <Route 
           path="/admin-dashboard" 
           element={
-            <ProtectedRoute role="admin">
+            <PrivateRoute allowedRoles={["admin"]}>
               <AdminHome />
-            </ProtectedRoute>
+            </PrivateRoute>
           } 
         />
         <Route 
           path="/manage-doctors" 
           element={
-            <ProtectedRoute role="admin">
+            <PrivateRoute allowedRoles={["admin"]}>
               <ManageDoctors />
-            </ProtectedRoute>
+            </PrivateRoute>
           } 
         />
         <Route 
           path="/manage-nurses" 
           element={
-            <ProtectedRoute role="admin">
+            <PrivateRoute allowedRoles={["admin"]}>
               <ManageNurses />
-            </ProtectedRoute>
+            </PrivateRoute>
           } 
         />
         <Route 
           path="/manage-patients" 
           element={
-            <ProtectedRoute role="admin">
+            <PrivateRoute allowedRoles={["admin"]}>
               <AllPatients />
-            </ProtectedRoute>
+            </PrivateRoute>
           } 
         />
         <Route
@@ -59,12 +60,29 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/my-patient"
+          element={
+            <PrivateRoute allowedRoles={["doctor"]}>
+              <MyPatients />
+            </PrivateRoute>
+          }
+        />
+      
 
         <Route
           path="/nurse-dashboard"
           element={
             <PrivateRoute allowedRoles={["nurse"]}>
               <NurseHome />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/room-status"
+          element={
+            <PrivateRoute allowedRoles={["nurse"]}>
+              <RoomStatus />
             </PrivateRoute>
           }
         />
@@ -77,6 +95,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        
       </Routes>
     </BrowserRouter>
   );

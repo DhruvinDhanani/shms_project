@@ -1,18 +1,11 @@
-import React from "react";
 import { Navigate } from "react-router-dom";
 
-const PrivateRoute = ({ children, allowedRoles }) => {
+const PrivateRoute = ({ allowedRoles, children }) => {
   const user = JSON.parse(sessionStorage.getItem("currentUser"));
 
-  // If no user, redirect to login
-  if (!user) return <Navigate to="/" />;
+  if (!user) return <Navigate to="/login" />; // not logged in
+  if (!allowedRoles.includes(user.role)) return <Navigate to="/" />; // role not allowed
 
-  // If user's role is not allowed, redirect to login
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" />;
-  }
-
-  // User is allowed
   return children;
 };
 

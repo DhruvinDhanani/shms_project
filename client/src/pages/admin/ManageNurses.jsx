@@ -98,10 +98,15 @@ const ManageNurses = () => {
           type="text"
           placeholder="Qualification"
           value={newNurse.qualification}
-          onChange={(e) => setNewNurse({ ...newNurse, qualification: e.target.value })}
+          onChange={(e) =>
+            setNewNurse({ ...newNurse, qualification: e.target.value })
+          }
           className="border p-1 mr-2"
         />
-        <button className="bg-green-500 text-white px-3 py-1" onClick={handleAddNurse}>
+        <button
+          className="bg-green-500 text-white px-3 py-1"
+          onClick={handleAddNurse}
+        >
           Add Nurse
         </button>
       </div>
